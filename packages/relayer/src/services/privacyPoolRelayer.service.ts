@@ -98,6 +98,7 @@ export class PrivacyPoolRelayer {
         requestId,
       };
     } catch (error) {
+      console.error("[handleRequest] Raw error:", error);
       let errorMessage: string;
       if (error instanceof RelayerError) {
         errorMessage = error.toPrettyString();
@@ -205,7 +206,7 @@ export class PrivacyPoolRelayer {
         const { metaMessages, shortMessage } = error;
         throw BlockchainError.txError((metaMessages ? metaMessages[0] : undefined) || shortMessage);
       } else {
-        throw RelayerError.unknown("Something went wrong while broadcasting Tx");
+        throw RelayerError.unknown(`Broadcast failed: ${(error as any)?.message || error}`);
       }
     }
   }
@@ -312,18 +313,21 @@ export class PrivacyPoolRelayer {
 
     } else {
 
-      const currentFeeBPS = await quoteService.quoteFeeBPSNative({
-        chainId,
-        amountIn: proofSignals.withdrawnValue,
-        assetAddress,
-        baseFeeBPS: assetConfig.fee_bps,
-        extraGas
-      });
+      // Skip fee quoting when both base fee and relay fee are 0 (no Uniswap needed)
+      if (assetConfig.fee_bps > 0n || relayFeeBPS > 0n) {
+        const currentFeeBPS = await quoteService.quoteFeeBPSNative({
+          chainId,
+          amountIn: proofSignals.withdrawnValue,
+          assetAddress,
+          baseFeeBPS: assetConfig.fee_bps,
+          extraGas
+        });
 
-      if (relayFeeBPS < currentFeeBPS.feeBPS) {
-        throw WithdrawalValidationError.feeTooLow(
-          `Relay fee too low: expected at least "${currentFeeBPS}", got "${relayFeeBPS}".`,
-        );
+        if (relayFeeBPS < currentFeeBPS.feeBPS) {
+          throw WithdrawalValidationError.feeTooLow(
+            `Relay fee too low: expected at least "${currentFeeBPS}", got "${relayFeeBPS}".`,
+          );
+        }
       }
 
     }
