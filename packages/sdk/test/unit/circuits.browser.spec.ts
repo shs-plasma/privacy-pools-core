@@ -4,11 +4,13 @@ import { Circuits } from "../../src/circuits/index.js";
 import { FetchArtifact } from "../../src/internal.js";
 import { CircuitsMock } from "../mocks/index.js";
 
+const TEST_SERVER_URL = process.env.TEST_ARTIFACT_SERVER_URL || "http://127.0.0.1:8888";
+
 class CircuitsMockBrowser extends CircuitsMock {
   override _browser() {
     return true;
   }
-  override baseUrl: string = "http://0.0.0.0:8888";
+  override baseUrl: string = TEST_SERVER_URL;
 }
 
 describe("Circuits for browser", () => {
@@ -24,7 +26,7 @@ describe("Circuits for browser", () => {
 
   it("test server should 'pong' back", async () => {
     expect(
-      await (await fetch("http://0.0.0.0:8888/ping")).text(),
+      await (await fetch(`${TEST_SERVER_URL}/ping`)).text(),
     ).toStrictEqual("pong");
   });
 
@@ -32,7 +34,7 @@ describe("Circuits for browser", () => {
     const u8s = new Uint8Array([0, 1, 2, 3]);
     expect(
       await (
-        await fetch("http://0.0.0.0:8888/artifacts/withdraw.wasm")
+        await fetch(`${TEST_SERVER_URL}/artifacts/withdraw.wasm`)
       ).arrayBuffer(),
     ).toStrictEqual(u8s.buffer);
   });

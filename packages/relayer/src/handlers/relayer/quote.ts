@@ -20,9 +20,35 @@ export async function relayQuoteHandler(
   next: NextFunction,
 ) {
 
-  const chainId = Number(req.body.chainId!);
-  const amountIn = BigInt(req.body.amount!.toString());
-  const asset = getAddress(req.body.asset!.toString());
+  // Validate inputs before processing to return 4xx instead of 500
+  let chainId: number;
+  let amountIn: bigint;
+  let asset: `0x${string}`;
+
+  try {
+    chainId = Number(req.body.chainId!);
+    if (!Number.isFinite(chainId) || chainId <= 0) {
+      return next(QuoterError.assetNotSupported(`Invalid chainId: ${req.body.chainId}`));
+    }
+  } catch {
+    return next(QuoterError.assetNotSupported(`Invalid chainId: ${req.body.chainId}`));
+  }
+
+  try {
+    amountIn = BigInt(req.body.amount!.toString());
+    if (amountIn <= 0n) {
+      return next(QuoterError.assetNotSupported(`Amount must be positive, got ${amountIn}`));
+    }
+  } catch {
+    return next(QuoterError.assetNotSupported(`Invalid amount: ${req.body.amount}`));
+  }
+
+  try {
+    asset = getAddress(req.body.asset!.toString());
+  } catch {
+    return next(QuoterError.assetNotSupported(`Invalid asset address: ${req.body.asset}`));
+  }
+
   let extraGas = Boolean(req.body.extraGas);
 
   const config = getAssetConfig(chainId, asset);

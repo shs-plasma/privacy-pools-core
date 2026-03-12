@@ -1,5 +1,8 @@
 import http from "node:http";
 
+/** The base URL of the test artifact server, available after setup(). */
+export let testServerUrl: string = "";
+
 async function startServer(host: string, port: number): Promise<http.Server> {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
@@ -26,7 +29,12 @@ let teardownHappened = false;
 let server: http.Server;
 
 export async function setup() {
-  server = await startServer("0.0.0.0", 8888);
+  server = await startServer("127.0.0.1", 0);
+  const addr = server.address();
+  if (addr && typeof addr === "object") {
+    testServerUrl = `http://127.0.0.1:${addr.port}`;
+    process.env.TEST_ARTIFACT_SERVER_URL = testServerUrl;
+  }
 }
 
 export async function teardown() {
@@ -34,6 +42,5 @@ export async function teardown() {
     throw new Error("teardown called twice");
   }
   teardownHappened = true;
-  // tear it down here
   server.close();
 }

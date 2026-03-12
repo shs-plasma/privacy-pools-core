@@ -175,7 +175,8 @@ contract UnitPush is UnitPrivacyPoolSimple {
    */
   function test_PushWhenTransferFails(address _recipient, uint256 _amount) external {
     // Setup test with valid amount and recipient
-    vm.assume(_recipient > address(10));
+    // Exclude precompile range (0x01–0xff) to avoid etch collisions on all EVM chains
+    vm.assume(_recipient > address(0xff));
     vm.assume(_recipient != address(_pool));
     vm.assume(_amount > 0);
 

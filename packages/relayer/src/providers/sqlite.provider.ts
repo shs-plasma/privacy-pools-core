@@ -62,11 +62,12 @@ CREATE TABLE IF NOT EXISTS requests (
         filename: this.dbPath,
       });
       await this.db.run(this.createTableRequest);
+      this._initialized = true;
+      console.log("sqlite db initialized");
     } catch (error) {
-      console.log(error);
+      console.error("FATAL: sqlite initialization failed:", error);
+      throw error;
     }
-    this._initialized = true;
-    console.log("sqlite db initialized");
   }
 
   /**

@@ -36,6 +36,12 @@ export class QuoteService {
   }
 
   async netFeeBPSNative(baseFee: bigint, balance: bigint, nativeQuote: { num: bigint, den: bigint; }, gasPrice: bigint, extraGasUnits: bigint): Promise<bigint> {
+    if (balance === 0n) {
+      throw new Error("Cannot compute fee for zero balance");
+    }
+    if (nativeQuote.num === 0n) {
+      throw new Error("Cannot compute fee with zero quote numerator");
+    }
     const totalGasUnits = this.relayTxCost + extraGasUnits;
     const nativeCosts = (1n * gasPrice * totalGasUnits);
     return baseFee + nativeQuote.den * 10_000n * nativeCosts / balance / nativeQuote.num;
