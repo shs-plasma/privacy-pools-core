@@ -40,6 +40,31 @@ contract GnosisChiado is DeployProtocol {
   }
 }
 
+// @notice Protocol configuration for Plasma Testnet
+contract PlasmaTestnet is DeployProtocol {
+  function setUp() public override chainId(9_746) {
+    // Native asset pool (XPL)
+    _nativePoolConfig = PoolConfig({
+      symbol: 'XPL',
+      asset: IERC20(Constants.NATIVE_ASSET),
+      minimumDepositAmount: 0.001 ether,
+      vettingFeeBPS: 0,
+      maxRelayFeeBPS: 0
+    });
+
+    // USDT pool (Mock USDT on testnet)
+    _tokenPoolConfigs.push(PoolConfig({
+      symbol: 'USDT',
+      asset: IERC20(0x5e8135210b6C974F370e86139Ed22Af932a4d022),
+      minimumDepositAmount: 1_000_000,
+      vettingFeeBPS: 0,
+      maxRelayFeeBPS: 0
+    }));
+
+    super.setUp();
+  }
+}
+
 /*///////////////////////////////////////////////////////////////
                        MAINNETS
 //////////////////////////////////////////////////////////////*/

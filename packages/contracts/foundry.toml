@@ -34,6 +34,7 @@ runs = 1000
 mainnet = "${ETHEREUM_MAINNET_RPC}"
 sepolia = "${ETHEREUM_SEPOLIA_RPC}"
 gnosis = "${GNOSIS_RPC}"
+plasma_testnet = "${PLASMA_TESTNET_RPC}"
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_API_KEY}" }
