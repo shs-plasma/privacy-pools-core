@@ -1,4 +1,6 @@
-# Privacy Pool Protocol
+# Privacy Pool Protocol — Plasma Network Fork
+
+> **This is a fork of [0xbow-io/privacy-pools-core](https://github.com/0xbow-io/privacy-pools-core)** adapted for [Plasma Network](https://plasma.io) (chain ID 9746). See **[PLASMA-CHANGELOG.md](./PLASMA-CHANGELOG.md)** for a detailed description of every change from upstream and the reasoning behind it.
 
 Privacy Pool is a blockchain protocol that enables private asset transfers. Users can deposit funds publicly and partially withdraw them privately, provided they can prove membership in an approved set of addresses.
 
