@@ -41,6 +41,12 @@ yarn
 An end-to-end Plasma web demo is available in [`apps/web-demo`](./apps/web-demo/README.md). From the repo root, run:
 
 ```bash
+# Fresh clone
+git clone <your-fork-url>
+cd privacy-pools-core
+yarn
+cd apps/web-demo && npm install && cd ../..
+
 # Terminal 1
 npm run demo:helper
 

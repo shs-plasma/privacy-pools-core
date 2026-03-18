@@ -14,6 +14,15 @@ Plain React + Vite web demo for the Plasma privacy stack in this workspace.
 
 ## Run the full demo
 
+Fresh clone setup:
+
+```bash
+git clone <your-fork-url>
+cd privacy-pools-core
+yarn
+cd apps/web-demo && npm install && cd ../..
+```
+
 From the repo root:
 
 Terminal 1:
