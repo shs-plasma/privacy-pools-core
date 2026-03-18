@@ -35,3 +35,20 @@ To set up the development environment:
 # Install dependencies
 yarn
 ```
+
+## Web Demo
+
+An end-to-end Plasma web demo is available in [`apps/web-demo`](./apps/web-demo/README.md). From the repo root, run:
+
+```bash
+# Terminal 1
+npm run demo:helper
+
+# Terminal 2
+npm run demo:relayer
+
+# Terminal 3
+npm run demo:web
+```
+
+The demo walks through wallet connect, funding, deposit, browser proving, and relayed withdrawal on Plasma testnet using the same addresses and flow already covered by the repo's tests.

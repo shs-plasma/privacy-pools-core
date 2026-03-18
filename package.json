@@ -9,6 +9,13 @@
   "license": "Apache-2.0",
   "author": "Wonderland",
   "private": true,
+  "scripts": {
+    "demo:web": "npm --prefix ./apps/web-demo run dev -- --host 127.0.0.1 --port 5173 --strictPort",
+    "demo:helper": "npm --prefix ./apps/web-demo run helper",
+    "demo:relayer": "npm --prefix ./packages/relayer run start:ts",
+    "demo:build": "npm --prefix ./apps/web-demo run build",
+    "demo:preview": "npm --prefix ./apps/web-demo run preview"
+  },
   "workspaces": [
     "packages/circuits",
     "packages/contracts",

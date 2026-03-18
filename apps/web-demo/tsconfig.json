@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@privacy-sdk": ["../../packages/sdk/src/index.ts"],
+      "@privacy-sdk-src/*": ["../../packages/sdk/src/*"],
+      "@stealth-sdk": ["../../../plasma-privacy-testkit/ts/src/index.ts"],
+      "@stealth-sdk-src/*": ["../../../plasma-privacy-testkit/ts/src/*"]
+    }
+  },
+  "include": ["src"],
+  "references": []
+}

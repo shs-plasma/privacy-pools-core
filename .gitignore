@@ -1,6 +1,8 @@
 # General
 yarn-error.log
 node_modules
+dist
+*.tsbuildinfo
 .DS_STORE
 .vscode
 .idea
