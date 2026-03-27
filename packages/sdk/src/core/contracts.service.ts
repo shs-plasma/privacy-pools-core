@@ -91,7 +91,6 @@ export class ContractInteractionsService implements ContractInteractions {
       });
       return await this.executeTransaction(request);
     } catch (error) {
-      console.error("Deposit ERC20 Error:", { error, asset, amount });
       throw new Error(
         `Failed to deposit ERC20: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -121,7 +120,6 @@ export class ContractInteractionsService implements ContractInteractions {
 
       return await this.executeTransaction(request);
     } catch (error) {
-      console.error("Deposit ETH Error:", { error, amount });
       throw new Error(
         `Failed to deposit ETH: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -156,10 +154,6 @@ export class ContractInteractionsService implements ContractInteractions {
 
       return await this.executeTransaction(request);
     } catch (error) {
-      console.error("Withdraw Error Details:", {
-        error,
-        accountAddress: this.account.address,
-      });
       throw new Error(
         `Failed to Withdraw: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -192,10 +186,6 @@ export class ContractInteractionsService implements ContractInteractions {
 
       return await this.executeTransaction(request);
     } catch (error) {
-      console.error("Withdraw Error Details:", {
-        error,
-        accountAddress: this.account.address,
-      });
       throw error;
     }
   }
@@ -225,7 +215,6 @@ export class ContractInteractionsService implements ContractInteractions {
 
       return await this.executeTransaction(request);
     } catch (error) {
-      console.error("Ragequit Error:", { error });
       throw new Error(
         `Failed to Ragequit: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -361,7 +350,6 @@ export class ContractInteractionsService implements ContractInteractions {
       };
     } catch (error) {
       if (error instanceof ContractError) throw error;
-      console.error(`Error resolving scope ${scope.toString()}:`, error);
       throw new Error(
         `Failed to resolve scope ${scope.toString()}: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -392,7 +380,6 @@ export class ContractInteractionsService implements ContractInteractions {
 
       return await this.executeTransaction(request);
     } catch (error) {
-      console.error("ERC20 Approval Error:", { error, tokenAddress, amount });
       throw new Error(
         `Failed to approve ERC20: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -433,7 +420,6 @@ export class ContractInteractionsService implements ContractInteractions {
         },
       };
     } catch (error) {
-      console.error("Transaction Execution Error:", { error, request });
       throw new Error(
         `Transaction failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );

@@ -119,10 +119,14 @@ contract Entrypoint is AccessControlUpgradeable, UUPSUpgradeable, ReentrancyGuar
     uint256 _value,
     uint256 _precommitment
   ) external nonReentrant returns (uint256 _commitment) {
+    // Measure balance before transfer to handle fee-on-transfer tokens
+    uint256 _balanceBefore = _asset.balanceOf(address(this));
     // Pull funds from user
     _asset.safeTransferFrom(msg.sender, address(this), _value);
+    // Use actual received amount (handles fee-on-transfer tokens)
+    uint256 _actualReceived = _asset.balanceOf(address(this)) - _balanceBefore;
     // Handle deposit as ERC20
-    _commitment = _handleDeposit(_asset, _value, _precommitment);
+    _commitment = _handleDeposit(_asset, _actualReceived, _precommitment);
   }
 
   /*///////////////////////////////////////////////////////////////
@@ -146,7 +150,9 @@ contract Entrypoint is AccessControlUpgradeable, UUPSUpgradeable, ReentrancyGuar
 
     // Store pool asset
     IERC20 _asset = IERC20(_pool.ASSET());
-    uint256 _balanceBefore = _assetBalance(_asset);
+    uint256 _entrypointBalanceBefore = _assetBalance(_asset);
+    // Also track pool balance to ensure pool accounting integrity
+    uint256 _poolBalanceBefore = _poolAssetBalance(_asset, address(_pool));
 
     // Process withdrawal
     _pool.withdraw(_withdrawal, _proof);
@@ -168,9 +174,12 @@ contract Entrypoint is AccessControlUpgradeable, UUPSUpgradeable, ReentrancyGuar
     // Transfer fees to fee recipient
     _transfer(_asset, _data.feeRecipient, _feeAmount);
 
-    // Check pool balance has not been reduced
-    uint256 _balanceAfter = _assetBalance(_asset);
-    if (_balanceBefore > _balanceAfter) revert InvalidPoolState();
+    // Check entrypoint balance has not been reduced (fee invariant)
+    uint256 _entrypointBalanceAfter = _assetBalance(_asset);
+    if (_entrypointBalanceBefore > _entrypointBalanceAfter) revert InvalidPoolState();
+    // Check pool balance decreased by exactly the withdrawn amount
+    uint256 _poolBalanceAfter = _poolAssetBalance(_asset, address(_pool));
+    if (_poolBalanceBefore - _poolBalanceAfter != _withdrawnAmount) revert InvalidPoolState();
 
     emit WithdrawalRelayed(msg.sender, _data.recipient, _asset, _withdrawnAmount, _feeAmount);
   }
@@ -365,6 +374,20 @@ contract Entrypoint is AccessControlUpgradeable, UUPSUpgradeable, ReentrancyGuar
       _balance = address(this).balance;
     } else {
       _balance = _asset.balanceOf(address(this));
+    }
+  }
+
+  /**
+   * @notice Fetch asset balance for a specific pool address
+   * @param _asset The asset address
+   * @param _pool The pool address to check
+   * @return _balance The asset balance of the pool
+   */
+  function _poolAssetBalance(IERC20 _asset, address _pool) internal view returns (uint256 _balance) {
+    if (_asset == IERC20(Constants.NATIVE_ASSET)) {
+      _balance = _pool.balance;
+    } else {
+      _balance = _asset.balanceOf(_pool);
     }
   }
 

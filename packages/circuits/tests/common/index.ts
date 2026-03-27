@@ -21,8 +21,15 @@ export function hashCommitment(input: Commitment): [bigint, bigint] {
   return [commitmentHash, nullifierHash];
 }
 
+/**
+ * Generates a cryptographically random bigint in the BN128 scalar field.
+ * Uses crypto.randomBytes(32) reduced modulo the field order for full 254-bit coverage.
+ */
 export function randomBigInt(): bigint {
-  return BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+  const BN128_FIELD_ORDER = BigInt("21888242871839275222246405745257275088548364400416034343698204186575808495617");
+  const bytes = require("crypto").randomBytes(32);
+  const hex = "0x" + bytes.toString("hex");
+  return BigInt(hex) % BN128_FIELD_ORDER;
 }
 
 export function padSiblings(siblings: bigint[], targetDepth: number): bigint[] {

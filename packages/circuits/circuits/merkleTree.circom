@@ -40,8 +40,9 @@ template LeanIMTInclusionProof(maxDepth) {
 
     /////////////////////// LOGIC ///////////////////////
 
-    // Check provided depth is valid according to the max depth 
-    component depthCheck = LessEqThan(6);
+    // Check provided depth is valid according to the max depth
+    // Using 8 bits to safely support maxDepth up to 255 (was 6 bits, only safe up to 63)
+    component depthCheck = LessEqThan(8);
     depthCheck.in[0] <== actualDepth;
     depthCheck.in[1] <== maxDepth;
     depthCheck.out === 1;
@@ -72,6 +73,17 @@ template LeanIMTInclusionProof(maxDepth) {
 
         // Either keep the previous hash (no more siblings) or the new one
         nodes[i + 1] <== (nodes[i] - poseidons[i].out) * siblingIsEmpty[i].out + poseidons[i].out;
+    }
+
+    // Enforce zero-sibling structure: once a zero sibling is seen, all subsequent must be zero.
+    // This prevents multiple valid proofs for the same leaf via different zero-padding patterns.
+    signal zeroSeen[maxDepth + 1];
+    zeroSeen[0] <== 0;
+    for (var i = 0; i < maxDepth; i++) {
+        // If we've already seen a zero sibling, all subsequent siblings must also be zero
+        zeroSeen[i + 1] <== zeroSeen[i] + siblingIsEmpty[i].out - zeroSeen[i] * siblingIsEmpty[i].out; // OR gate
+        // Once zeroSeen is 1, sibling must be 0 (enforced: zeroSeen[i] * siblings[i] === 0)
+        zeroSeen[i] * siblings[i] === 0;
     }
 
     // Output final computed root

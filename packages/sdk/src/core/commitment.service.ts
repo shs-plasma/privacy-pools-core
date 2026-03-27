@@ -51,7 +51,7 @@ export class CommitmentService {
     } catch (error) {
       throw ProofError.generationFailed({
         error: error instanceof Error ? error.message : "Unknown error",
-        inputSignals: { value, label, nullifier },
+        circuit: CircuitName.Commitment,
       });
     }
   }

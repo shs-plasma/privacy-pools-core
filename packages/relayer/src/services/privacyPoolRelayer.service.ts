@@ -42,6 +42,9 @@ export class PrivacyPoolRelayer {
   protected web3Provider: Web3Provider;
   protected uniswapProvider: UniswapProvider;
 
+  /** In-memory set of nullifier hashes currently being processed, to prevent replay. */
+  private pendingNullifiers: Set<string> = new Set();
+
   /**
    * Initializes a new instance of the Privacy Pool Relayer.
    */
@@ -62,6 +65,18 @@ export class PrivacyPoolRelayer {
   async handleRequest(req: WithdrawalPayload, chainId: number): Promise<RelayerResponse> {
     const requestId = crypto.randomUUID();
     const timestamp = Date.now();
+
+    // Extract nullifier hash from proof public signals and deduplicate
+    const nullifierHash = parseSignals(req.proof.publicSignals).existingNullifierHash?.toString();
+    if (nullifierHash && this.pendingNullifiers.has(nullifierHash)) {
+      return {
+        success: false,
+        error: "Withdrawal with this nullifier is already being processed",
+        timestamp,
+        requestId,
+      };
+    }
+    if (nullifierHash) this.pendingNullifiers.add(nullifierHash);
 
     try {
       await this.db.createNewRequest(requestId, timestamp, req);
@@ -137,6 +152,9 @@ export class PrivacyPoolRelayer {
         timestamp,
         requestId,
       };
+    } finally {
+      // Release nullifier lock regardless of success or failure
+      if (nullifierHash) this.pendingNullifiers.delete(nullifierHash);
     }
   }
 
@@ -245,20 +263,20 @@ export class PrivacyPoolRelayer {
 
     if (wp.withdrawal.processooor !== entrypointAddress) {
       throw WithdrawalValidationError.processooorMismatch(
-        `Processooor mismatch: expected "${entrypointAddress}", got "${wp.withdrawal.processooor}".`,
+        `Processooor mismatch: the provided processooor address does not match the expected entrypoint.`,
       );
     }
 
     if (extraGas && !isFeeReceiverSameAsSigner(chainId)) {
       if (getAddress(feeRecipient) !== getAddress(signerAddress)) {
         throw WithdrawalValidationError.feeReceiverMismatch(
-          `Fee recipient with extraGas mismatch: expected "${signerAddress}", got "${feeRecipient}".`,
+          `Fee recipient with extraGas does not match the expected address.`,
         );
       }
     } else {
       if (getAddress(feeRecipient) !== feeReceiverAddress) {
         throw WithdrawalValidationError.feeReceiverMismatch(
-          `Fee recipient mismatch: expected "${feeReceiverAddress}", got "${feeRecipient}".`,
+          `Fee recipient does not match the expected fee receiver address.`,
         );
       }
     }

@@ -83,14 +83,20 @@ CREATE TABLE IF NOT EXISTS requests (
     timestamp: number,
     req: WithdrawalPayload,
   ): Promise<void> {
-    const strigifiedPayload = JSON.stringify(req, replacer);
+    // Store only operational minimum — do NOT persist proofs, withdrawal details,
+    // or recipient addresses to prevent deanonymization via database compromise.
+    const redactedPayload = JSON.stringify({
+      scope: req.scope,
+      // Omit: req.proof (ZK proof data), req.withdrawal (recipient, data),
+      // req.feeCommitment (fee details) — these enable deanonymization
+    }, replacer);
     // Store initial request
     await this.db.run(
       `
       INSERT INTO requests (id, timestamp, request, status)
       VALUES (?, ?, ?, ?)
     `,
-      [requestId, timestamp, strigifiedPayload, RequestStatus.RECEIVED],
+      [requestId, timestamp, redactedPayload, RequestStatus.RECEIVED],
     );
   }
 
